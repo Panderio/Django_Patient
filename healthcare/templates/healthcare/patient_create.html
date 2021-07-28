@@ -1,0 +1,11 @@
+{% extends "healthcare/base.html" %}
+{% block content %}
+<a href="{% url 'healthcare:healthcare-patient_list' %}">Go to Patient List</a>
+<hr />
+  <h1>This Form for adding a new Patient</h1>
+  <form method="post" action=".">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit">Create</button>
+  </form>
+{% endblock content %}
