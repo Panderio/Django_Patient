@@ -1,7 +1,13 @@
 from typing import AsyncGenerator
 from django import forms
+from django.contrib.auth.forms import UserCreationForm , UsernameField
+from django.contrib.auth import get_user_model
+
+from django.db import models
 from django.db.models import fields
-from .models import Patient
+from .models import Patient, User
+
+User = get_user_model()
 
 class PatientModelForm(forms.ModelForm):
     class Meta:
@@ -29,3 +35,9 @@ class PatientForm(forms.Form):
     matricule = forms.IntegerField(min_value=0)
     cin = forms.IntegerField(min_value=0)
     age = forms.IntegerField(min_value=0)
+
+class CustomUserCreation(UserCreationForm):
+    class Meta:
+        model = User
+        fields = {"username",}
+        field_classes = {"username": UsernameField}
