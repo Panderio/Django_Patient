@@ -6,7 +6,9 @@ from django.db.models.fields import IntegerField
 # Create your models here.
 
 class User(AbstractUser):
-    add = models.CharField(max_length=150)
+    is_Expert= models.BooleanField(default=True)
+    is_conseil= models.BooleanField(default=False)
+    
 
 class UserProfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -120,7 +122,8 @@ class Patient(models.Model):
     Comments2= models.TextField(blank=True, null=True)
     age = models.PositiveSmallIntegerField()
     ImagePic = models.ImageField(blank=True, null=True)
-    expert = models.ForeignKey("Expert", on_delete=models.CASCADE)
+    expert = models.ForeignKey("Expert", blank=True, null=True, on_delete=models.SET_NULL)
+    docteur = models.ForeignKey(UserProfil, on_delete=models.CASCADE)
 
 
     def __str__(self):

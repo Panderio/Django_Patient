@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'healthcare'
+    'healthcare',
+    'experts',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -130,3 +132,9 @@ AUTH_USER_MODEL = 'healthcare.User'
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 LOGIN_REDIRECT_URL = "/healthcare"
 LOGIN_URL="/login"
+
+
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}

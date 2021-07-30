@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{% url 'experts:expert-list' %}">Go to Expert List</a>
+<hr />
+  <h1>Are you sure you want to delete this Expert ?</h1>
+  <form method="post" action=".">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit">Delete</button>
+  </form>
+{% endblock content %}

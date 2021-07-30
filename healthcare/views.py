@@ -2,8 +2,25 @@ from django.core.mail import send_mail
 from django.shortcuts import redirect, render, reverse 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic
-from .models import Patient
+from django.http import HttpResponse
+from .models import Expert, Patient
 from .forms import PatientForm , PatientModelForm , CustomUserCreation
+from io  import StringIO
+from docx import Document
+
+
+
+#Save Document !
+def download_docx(request):
+    document = Document()
+    document.add_heading('Document Title', 0)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = 'attachment; filename=download.docx'
+    document.save(response)
+
+    return response
+
 # Create your views here.
 
 
@@ -27,8 +44,16 @@ class LandingPageView(generic.TemplateView):
 #2
 class PatientListView(LoginRequiredMixin, generic.ListView):
     template_name="healthcare/patient_list.html"
-    queryset=Patient.objects.all()
     context_object_name="patients"
+    def get_queryset(self):
+        user=self.request.user
+        if user.is_Expert:
+            queryset=Patient.objects.filter(docteur=user.userprofile)
+        else:
+            queryset=Patient.objects.filter(docteur=user.expert.docteur)
+            #filter for the conseil
+            queryset=queryset.filter(expert__user=user)
+        return queryset
 
 
 #3
