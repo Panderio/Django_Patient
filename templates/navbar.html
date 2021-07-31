@@ -10,9 +10,6 @@
       {% if not request.user.is_authenticated%}
         <a href="{% url 'signup' %}" class="mr-5 hover:text-gray-900">Signup</a>
       {% else %}
-        {% if request.user.is_Expert%}
-          <a href="{% url 'experts:expert-list' %}" class="mr-5 hover:text-gray-900">Expert</a>
-        {%endif%}
         <a href="{% url 'healthcare:healthcare-patient_list' %}" class="mr-5 hover:text-gray-900">Patient</a>
       {% endif %}
     </nav>

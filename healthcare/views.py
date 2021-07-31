@@ -7,8 +7,9 @@ from .models import Expert, Patient
 from .forms import PatientForm , PatientModelForm , CustomUserCreation
 from io  import StringIO
 from docx import Document
-
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions
 
 #Save Document !
 def download_docx(request):
@@ -26,6 +27,39 @@ def download_docx(request):
 
 
 #Class Based Views
+class ChartData(APIView,generic.TemplateView):
+    authentication_classes = []
+    permission_classes = []
+    template_name="healthcare/patient_charts.html"
+
+
+    def get(self, request, format=None):
+        qs=Patient.objects.all()
+        labels = []
+        default_items = []
+
+        for item in qs:
+            labels.append(item.first_name)
+            default_items.append(item.last_name)
+
+        data = {
+                "labels": labels,
+                "default": default_items,
+        }
+        return render(request, "healthcare/patient_charts.html",data)
+
+def charts(request):
+        qs=Patient.objects.all()
+        labels = []
+        default_items = []
+
+        for item in qs:
+            labels.append(item.Gouvernorat)
+            default_items.append(item.Grade)
+        return render(request, "healthcare/patient_charts.html",{
+                "labels": labels,
+                "default": default_items,
+        })
 
 #USER
 class SignupView(generic.CreateView):
@@ -45,15 +79,18 @@ class LandingPageView(generic.TemplateView):
 class PatientListView(LoginRequiredMixin, generic.ListView):
     template_name="healthcare/patient_list.html"
     context_object_name="patients"
-    def get_queryset(self):
-        user=self.request.user
-        if user.is_Expert:
-            queryset=Patient.objects.filter(docteur=user.userprofile)
-        else:
-            queryset=Patient.objects.filter(docteur=user.expert.docteur)
-            #filter for the conseil
-            queryset=queryset.filter(expert__user=user)
-        return queryset
+    queryset=Patient.objects.all()
+    context_object_name="patients"
+    
+#    def get_queryset(self):
+#        user=self.request.user
+#        if user.is_Expert:
+#            queryset=Patient.objects.filter(docteur=user.userprofile)
+#       else:
+#          queryset=Patient.objects.filter(docteur=user.expert.docteur)
+#         #filter for the conseil
+#        queryset=queryset.filter(expert__user=user)
+#   return queryset
 
 
 #3
@@ -152,6 +189,16 @@ def patient_delete(request,pk):
     patient = Patient.objects.get(id=pk)
     patient.delete()
     return redirect("/")
+
+
+
+
+
+
+
+
+
+
 
 
 

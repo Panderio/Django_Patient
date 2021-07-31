@@ -39,8 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'healthcare',
-    'experts',
-    'django_extensions'
+#    'experts',
+    'django_extensions',
+    'import_export',
+    'crispy_forms',
+    'crispy_tailwind',
+    'rest_framework',
+
+    
+
 ]
 
 MIDDLEWARE = [
@@ -132,9 +139,16 @@ AUTH_USER_MODEL = 'healthcare.User'
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 LOGIN_REDIRECT_URL = "/healthcare"
 LOGIN_URL="/login"
+LOGOUT_REDIRECT_UR="/"
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+
+CRISPY_TEMPLATE_PACK = "tailwind"
+
 
 
 GRAPH_MODELS = {
   'all_applications': True,
   'group_models': True,
 }
+

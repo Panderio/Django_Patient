@@ -6,8 +6,7 @@ from django.db.models.fields import IntegerField
 # Create your models here.
 
 class User(AbstractUser):
-    is_Expert= models.BooleanField(default=True)
-    is_conseil= models.BooleanField(default=False)
+    pass
     
 
 class UserProfil(models.Model):
@@ -49,16 +48,16 @@ class Patient(models.Model):
     médecin_conseil=models.CharField(max_length=100,blank=True, null=True)
     date_demande=models.DateField(blank=True, null=True)
     civil = models.CharField(max_length=12,choices=civilité)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    matricule = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100,blank=True, null=True)
+    last_name = models.CharField(max_length=100,blank=True, null=True)
+    matricule = models.CharField(max_length=100,blank=True, null=True)
     secteur_professionnel = models.TextField(blank=True, null=True)
     grade = models.CharField(max_length=100,blank=True, null=True)
     adresse_délégation=models.TextField(blank=True, null=True)
     gouvernorat=models.CharField(max_length=250,blank=True, null=True)
     date_naissance = models.DateField(blank=True, null=True)
     lieu_naissance =models.CharField(max_length=250,blank=True, null=True)
-    cin = models.SmallIntegerField()
+    cin = models.SmallIntegerField(blank=True, null=True)
     carte_handicapé =IntegerField(blank=True, null=True)
     handicap=models.CharField(max_length=250,blank=True, null=True)
     date_arret_de_travail=models.DateField(blank=True, null=True)
@@ -78,8 +77,8 @@ class Patient(models.Model):
     Autre=models.CharField(max_length=250,default=0,blank=True, null=True)
     Autre_1=models.CharField(max_length=250,default=0,blank=True, null=True)
     mariage=models.CharField(max_length=7,choices=status)
-    nombre_enfants=models.PositiveSmallIntegerField()
-    durée_cotisation_an=models.PositiveSmallIntegerField()
+    nombre_enfants=models.PositiveSmallIntegerField(blank=True, null=True)
+    durée_cotisation_an=models.PositiveSmallIntegerField(blank=True, null=True)
     dernier_emploi=models.TextField(blank=True, null=True)
     scolarisation=models.TextField(blank=True, null=True)
     plainte=models.TextField(blank=True, null=True)
@@ -120,10 +119,8 @@ class Patient(models.Model):
     mise_en_Invalidité=models.CharField(max_length=3,choices=y_n,blank=True, null=True)
     Comments1= models.TextField(blank=True, null=True)
     Comments2= models.TextField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField()
+    age = models.PositiveSmallIntegerField(blank=True, null=True)
     ImagePic = models.ImageField(blank=True, null=True)
-    expert = models.ForeignKey("Expert", blank=True, null=True, on_delete=models.SET_NULL)
-    docteur = models.ForeignKey(UserProfil, on_delete=models.CASCADE)
 
 
     def __str__(self):
