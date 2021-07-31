@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
-from django.db.models.fields import IntegerField
+from django.db.models.fields import CharField, IntegerField
 
 # Create your models here.
 
@@ -43,25 +43,25 @@ class Patient(models.Model):
         ('non','non'),
         )
     
-    date_expertise=models.DateField(blank=True, null=True)
+    date_expertise=models.DateField(("date expertise"),blank=True, null=True)
     Bureau_CNAM = models.TextField(blank=True, null=True)
     médecin_conseil=models.CharField(max_length=100,blank=True, null=True)
     date_demande=models.DateField(blank=True, null=True)
     civil = models.CharField(max_length=12,choices=civilité)
     first_name = models.CharField(max_length=100,blank=True, null=True)
     last_name = models.CharField(max_length=100,blank=True, null=True)
-    matricule = models.CharField(max_length=100,blank=True, null=True)
+    matricule = models.TextField(blank=True, null=True)
     secteur_professionnel = models.TextField(blank=True, null=True)
     grade = models.CharField(max_length=100,blank=True, null=True)
     adresse_délégation=models.TextField(blank=True, null=True)
     gouvernorat=models.CharField(max_length=250,blank=True, null=True)
     date_naissance = models.DateField(blank=True, null=True)
     lieu_naissance =models.CharField(max_length=250,blank=True, null=True)
-    cin = models.SmallIntegerField(blank=True, null=True)
-    carte_handicapé =IntegerField(blank=True, null=True)
+    cin = models.TextField(blank=True, null=True)
+    carte_handicapé =CharField(max_length=250,blank=True, null=True)
     handicap=models.CharField(max_length=250,blank=True, null=True)
     date_arret_de_travail=models.DateField(blank=True, null=True)
-    Type_ACT_MLD=models.CharField(max_length=3,choices=TypeAM)
+    Type_ACT_MLD=models.CharField(max_length=3,choices=TypeAM,blank=True, null=True)
     mode_début=models.CharField(max_length=11,choices=ModeD)
     date_début=models.DateField(blank=True, null=True)
     date_1ère_Consolidation=models.DateField(blank=True, null=True)
