@@ -1,16 +1,18 @@
 from django.core.mail import send_mail
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render, reverse 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions, serializers , generics
 from django.views import generic
-from django.http import HttpResponse
+from django.http import HttpResponse ,StreamingHttpResponse
 from .models import Expert, Patient
 from .forms import PatientForm , PatientModelForm , CustomUserCreation
 from io  import StringIO
+import io
 from docx import Document
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions
-
+from healthcare.api.serializers import PatientModelSeria
 #Save Document !
 def download_docx(request):
     document = Document()
@@ -22,8 +24,56 @@ def download_docx(request):
 
     return response
 
+class ExportDocx(APIView):
+    def get(self, request, *args, **kwargs):
+        # create an empty document object
+        document = Document()
+        document = self.build_document()
+
+        # save document info
+        buffer = io.BytesIO()
+        document.save(buffer)  # save your memory stream
+        buffer.seek(0)  # rewind the stream
+
+        # put them to streaming content response 
+        # within docx content_type
+        response = StreamingHttpResponse(
+            streaming_content=buffer,  # use the stream's content
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+
+        response['Content-Disposition'] = 'attachment;filename=Test.docx'
+        response["Content-Encoding"] = 'UTF-8'
+
+        return response
+    def build_document(self):
+        document = Document() 
+
+        # add a header
+        document.add_heading("This is a header")
+
+        # add a paragraph
+        document.add_paragraph("This is a normal style paragraph")
+
+        # add a paragraph within an italic text then go on with a break.
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run()
+        run.italic = True
+        run.add_text("text will have italic style")
+        run.add_break()
+        
+        return document
+
+
+
 # Create your views here.
 
+class RetrievePatient(generics.RetrieveAPIView):
+    #Serializers needs Authentication
+    serializer_class=PatientModelSeria
+    queryset=Patient.objects.all()
+    template_name="healthcare/patient_charts.html"
+    pass
 
 
 #Class Based Views
@@ -31,22 +81,11 @@ class ChartData(APIView,generic.TemplateView):
     authentication_classes = []
     permission_classes = []
     template_name="healthcare/patient_charts.html"
+    def get(self,request,*args, **kwargs):
+        qs = Patient.objects.all()
+        serializer = PatientModelSeria(qs,many=True)
+        return Response(serializer.data)
 
-
-    def get(self, request, format=None):
-        qs=Patient.objects.all()
-        labels = []
-        default_items = []
-
-        for item in qs:
-            labels.append(item.first_name)
-            default_items.append(item.last_name)
-
-        data = {
-                "labels": labels,
-                "default": default_items,
-        }
-        return render(request, "healthcare/patient_charts.html",data)
 
 def charts(request):
         qs=Patient.objects.all()
@@ -54,12 +93,13 @@ def charts(request):
         default_items = []
 
         for item in qs:
-            labels.append(item.Gouvernorat)
-            default_items.append(item.Grade)
-        return render(request, "healthcare/patient_charts.html",{
+            labels.append(item.first_name)
+            default_items.append(item.last_name)
+            context = {
                 "labels": labels,
                 "default": default_items,
-        })
+        }
+        return render(request, "healthcare/patient_charts.html",context)
 
 #USER
 class SignupView(generic.CreateView):
@@ -81,6 +121,8 @@ class PatientListView(LoginRequiredMixin, generic.ListView):
     context_object_name="patients"
     queryset=Patient.objects.all()
     context_object_name="patients"
+    paginate_by=8
+    
     
 #    def get_queryset(self):
 #        user=self.request.user

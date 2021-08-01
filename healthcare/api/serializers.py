@@ -1,24 +1,11 @@
-from typing import AsyncGenerator
-from django import forms
-from django.contrib.auth.forms import UserCreationForm , UsernameField
-from django.contrib.auth import get_user_model
-
-from django.db import models
-from django.db.models import fields
-from django.forms import widgets
-from .models import Patient, User
-
-User = get_user_model()
-
-class DateInputfil(forms.DateInput):
-    input_type= "date"
+from rest_framework import serializers
+from healthcare.models import Patient
 
 
-
-class PatientModelForm(forms.ModelForm):
+class PatientModelSeria(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields =(
+        fields =[
             'date_expertise',
             'Bureau_CNAM',
             'médecin_conseil',
@@ -96,38 +83,5 @@ class PatientModelForm(forms.ModelForm):
             'Comments1',
             'Comments2',
             'age',
-            'ImagePic',
-        )
-        widgets = {
-            'date_expertise':DateInputfil(),
-            'date_naissance':DateInputfil(),
-            'date_arret_de_travail':DateInputfil(),
-            'date_demande':DateInputfil(),
-            'date_début':DateInputfil(),
-            'date_1ère_Consolidation':DateInputfil(),
-            'date_rechute':DateInputfil(),
-            'date_dernière_rechute':DateInputfil(),
-            'date_dernière_consolidation':DateInputfil(),
-            'date_opération':DateInputfil()
-        }
+            'ImagePic']
 
-
-class PatientForm(forms.Form):
-    civilité = (
-        ('M.', 'Madame'),
-        ('Mr.', 'Monsieur'),
-        ('D.', 'Divorcée'),
-        ('Mme.', 'Mademoiselle'),
-    )
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    civil = forms.ChoiceField(choices=civilité)
-    matricule = forms.IntegerField(min_value=0)
-    cin = forms.IntegerField(min_value=0)
-    age = forms.IntegerField(min_value=0)
-
-class CustomUserCreation(UserCreationForm):
-    class Meta:
-        model = User
-        fields = {"username",}
-        field_classes = {"username": UsernameField}
