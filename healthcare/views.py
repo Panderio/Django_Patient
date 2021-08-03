@@ -10,6 +10,7 @@ from django.http import HttpResponse ,StreamingHttpResponse
 from .models import Expert, Patient
 from .forms import PatientModelForm , CustomUserCreation , PatientSearch , get_charts
 import pandas as pd
+from django.db.models import Q
 import io
 from docx import Document
 from healthcare.api.serializers import PatientModelSeria
@@ -239,12 +240,18 @@ def search_view(request):
         }
     return render(request, 'healthcare/patient_search.html',context)
 #2
-def patient_list(request):
-    patients = Patient.objects.all()
-    context = {
-        "patients":patients
+def patient_searchh(request):
+    search_q = request.GET.get('q','')
+    if search_q:
+        patients= Patient.objects.filter(Q(first_name=search_q) |
+        Q(last_name=search_q)        
+        )
+    else:
+        patients = Patient.objects.all()
+    context={
+        'patients':patients
     }
-    return render(request, 'healthcare/patient_list.html', context)
+    return render(request, 'healthcare/about.html',context)
 
 #3
 def patient_details(request,pk):

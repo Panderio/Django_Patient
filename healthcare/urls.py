@@ -7,6 +7,7 @@ urlpatterns = [
     path('testt/', ExportDocx.as_view() , name='healthcare-testt'),
     path('charts/', ChartData.as_view() , name='charts'),
     path('search/', SearchPatientFilter.as_view() , name='search'),
+    path('searchh/', patient_searchh , name='searchh'),
     path('', PatientListView.as_view() , name='healthcare-patient_list'),
     path('<int:pk>/', PatientDetailView.as_view() , name='healthcare-patient_details'),
     path('<int:pk>/update/', PatientUpdateView.as_view() , name='healthcare-patient_update'),  

@@ -7,11 +7,13 @@ from django.db import models
 from django.db.models import fields
 from django.db.models.enums import Choices
 from django.forms import widgets
+from matplotlib import colors
 from .models import Patient, User
 from io  import BytesIO
 import matplotlib as pllt
 import matplotlib.pyplot as plt
 import base64
+import seaborn as sns
 
 
 User = get_user_model()
@@ -156,15 +158,16 @@ def get_charts(chart_type, data, **kwargs):
     pllt.use('agg')
     fig=plt.figure(figsize=(10,4))
     if chart_type == '#1':
-        plt.bar(data['id'],data['durée_cotisation_an'])
+        #plt.bar(data['id'],data['durée_cotisation_an'])
         print("bar")
+        sns.barplot(x='id',y='durée_cotisation_an',data=data)
     elif chart_type == '#2':
         print("pie")
         labels=kwargs.get('labels')
         plt.pie(data=data,x='durée_cotisation_an',labels=labels)
     elif chart_type == '#3':
         print("line")
-        plt.plot(data['id'],data['durée_cotisation_an'])
+        plt.plot(data['id'],data['durée_cotisation_an'],color='green',marker='o',linestyle='dashed')
     else:
         print("error in choosing chart type")
     plt.tight_layout
