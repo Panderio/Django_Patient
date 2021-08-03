@@ -70,7 +70,7 @@ class Patient(models.Model):
     date_dernière_consolidation=models.DateField(blank=True, null=True)
     mécanisme=models.CharField(max_length=150,blank=True, null=True)
     lombalgies=models.CharField(max_length=3,default="oui")
-    sciatalgie=models.CharField(max_length=3,default="non")
+    sciatalgie=models.CharField(max_length=13,default="non")
     diabète=models.CharField(max_length=3,default=0)
     HTA=models.CharField(max_length=3,default=0,blank=True, null=True)
     respiratoire=models.CharField(max_length=150,default=0,blank=True, null=True)

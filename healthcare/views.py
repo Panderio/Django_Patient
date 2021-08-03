@@ -4,16 +4,20 @@ from django.shortcuts import redirect, render, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions, serializers , generics
+from rest_framework import authentication, permissions, generics, filters
 from django.views import generic
 from django.http import HttpResponse ,StreamingHttpResponse
 from .models import Expert, Patient
-from .forms import PatientForm , PatientModelForm , CustomUserCreation
-from io  import StringIO
+from .forms import PatientModelForm , CustomUserCreation , PatientSearch , get_charts
+import pandas as pd
 import io
 from docx import Document
 from healthcare.api.serializers import PatientModelSeria
+
+
+
 #Save Document !
+
 def download_docx(request):
     document = Document()
     document.add_heading('Document Title', 0)
@@ -68,14 +72,25 @@ class ExportDocx(APIView):
 
 # Create your views here.
 
-class RetrievePatient(generics.RetrieveAPIView):
+class SearchPatient(generics.ListAPIView):
     #Serializers needs Authentication
     serializer_class=PatientModelSeria
+    def get_queryset(self):
+        nom = self.request.query_params.get('first_name', None)
+        print(nom)
+        return Patient.objects.filter(first_name=nom)
+
+class SearchPatientFilter(generics.ListAPIView):
+    template_name="healthcare/patient_search.html"
+    serializer_class=PatientModelSeria
     queryset=Patient.objects.all()
-    template_name="healthcare/patient_charts.html"
-    pass
-
-
+    context_object_name="patients"
+    filter_backends=[filters.SearchFilter]
+    search_fields=[
+        '^Bureau_CNAM',
+        '^médecin_conseil',
+        '^gouvernorat',
+        '^date_demande']
 #Class Based Views
 class ChartData(APIView,generic.TemplateView):
     authentication_classes = []
@@ -120,7 +135,6 @@ class PatientListView(LoginRequiredMixin, generic.ListView):
     template_name="healthcare/patient_list.html"
     context_object_name="patients"
     queryset=Patient.objects.all()
-    context_object_name="patients"
     paginate_by=8
     
     
@@ -180,6 +194,50 @@ class PatientDeleteView(LoginRequiredMixin, generic.DeleteView):
 def landing_page(request):
     return render(request, 'healthcare/landing.html')
 
+def search_view(request):
+    test = None
+    data = None
+    query_df= None
+    chart=None
+    form= PatientSearch(request.POST or None)
+    if request.method =="POST":
+        Bureau_CNAM = request.POST.get('Bureau_CNAM')
+        médecin_conseil = request.POST.get('médecin_conseil')
+        gouvernorat = request.POST.get('gouvernorat')
+        date_demande = request.POST.get('date_demande')
+        char_type = request.POST.get('char_type')
+        print(Bureau_CNAM,médecin_conseil)
+        data=[]
+        queryset=Patient.objects.filter(médecin_conseil=médecin_conseil)
+        if len(queryset)>0:
+            query_df = pd.DataFrame(queryset.values())
+            for qs in queryset:
+                obj={
+                    'id': qs.id,
+                    'Nom': qs.last_name,
+                    'prenom': qs.first_name,
+                    'reprise': qs.reprise,
+                    'durée_cotisation_an':qs.durée_cotisation_an
+
+                }
+                data.append(obj)
+            data=pd.DataFrame(data)
+            test=data.groupby('id', as_index=False)['durée_cotisation_an'].agg('sum')
+            chart = get_charts(char_type,data,labels=data['durée_cotisation_an'].values)
+            query_df = query_df.to_html()
+            data = data.to_html()
+            test = test.to_html()
+
+        else:
+            print('no data')
+    context={
+            'form':form,
+            'query_df':query_df,
+            'data':data,
+            'test':test,
+            'chart':chart
+        }
+    return render(request, 'healthcare/patient_search.html',context)
 #2
 def patient_list(request):
     patients = Patient.objects.all()
@@ -231,7 +289,6 @@ def patient_delete(request,pk):
     patient = Patient.objects.get(id=pk)
     patient.delete()
     return redirect("/")
-
 
 
 

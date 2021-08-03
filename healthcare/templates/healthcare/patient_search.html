@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+    
+{% block content %}
+<div class="flex flex-wrap -m-4">
+  <hr>
+  <form method="POST" action="">
+    {% csrf_token %}
+    {{form|crispy}}
+    <button type="submit" class="w-full text-white bg-green-400 hover:bg-indigo-400 px-3 py-2 rounded-md" >
+    Search
+    </button>
+  </form>
+</div>
+   {% if query_df %}
+    <h1>Data</h1>
+    <br>
+    {{query_df|safe}}
+    <hr>
+    {{data|safe}}
+    <hr>
+    {{test|safe}}
+    <hr>
+    Chart
+    <img src="data:image/png;base64, {{chart|safe}}">
+  {% else %}
+    <h2>No data</h2>
+  {% endif %}
+{% endblock content %}

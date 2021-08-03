@@ -5,8 +5,14 @@ from django.contrib.auth import get_user_model
 
 from django.db import models
 from django.db.models import fields
+from django.db.models.enums import Choices
 from django.forms import widgets
 from .models import Patient, User
+from io  import BytesIO
+import matplotlib as pllt
+import matplotlib.pyplot as plt
+import base64
+
 
 User = get_user_model()
 
@@ -112,22 +118,55 @@ class PatientModelForm(forms.ModelForm):
         }
 
 
-class PatientForm(forms.Form):
-    civilité = (
-        ('M.', 'Madame'),
-        ('Mr.', 'Monsieur'),
-        ('D.', 'Divorcée'),
-        ('Mme.', 'Mademoiselle'),
+class PatientSearch(forms.Form):
+    char_choice= (
+        ('#1','Bar Chart'),
+        ('#2','Pie Chart'),
+        ('#3','Line Chart'),
     )
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    civil = forms.ChoiceField(choices=civilité)
-    matricule = forms.IntegerField(min_value=0)
-    cin = forms.IntegerField(min_value=0)
-    age = forms.IntegerField(min_value=0)
+    Bureau_CNAM     =   forms.CharField()
+    médecin_conseil = forms.CharField()
+    gouvernorat     = forms.CharField()
+    date_demande    = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}))
+    char_type = forms.ChoiceField(choices=char_choice)
+ 
+
+
 
 class CustomUserCreation(UserCreationForm):
     class Meta:
         model = User
         fields = {"username",}
         field_classes = {"username": UsernameField}
+
+
+
+#get Graph
+def get_graph():
+    buffer = BytesIO()
+    plt.savefig(buffer,format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png)
+    graph= graph.decode('utf-8')
+    buffer.close()
+    return graph
+
+def get_charts(chart_type, data, **kwargs):
+    pllt.use('agg')
+    fig=plt.figure(figsize=(10,4))
+    if chart_type == '#1':
+        plt.bar(data['id'],data['durée_cotisation_an'])
+        print("bar")
+    elif chart_type == '#2':
+        print("pie")
+        labels=kwargs.get('labels')
+        plt.pie(data=data,x='durée_cotisation_an',labels=labels)
+    elif chart_type == '#3':
+        print("line")
+        plt.plot(data['id'],data['durée_cotisation_an'])
+    else:
+        print("error in choosing chart type")
+    plt.tight_layout
+    chart=get_graph()
+    return chart
