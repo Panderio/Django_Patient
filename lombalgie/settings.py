@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'healthcare',
+    'predict',
 #    'experts',
     'django_extensions',
     'import_export',
