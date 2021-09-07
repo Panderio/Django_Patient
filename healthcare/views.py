@@ -26,35 +26,7 @@ from healthcare.api.serializers import PatientModelSeria
 
 # Create your views here.
 
-class SearchPatient(generics.ListAPIView):
-    #Serializers needs Authentication
-    serializer_class=PatientModelSeria
-    def get_queryset(self):
-        nom = self.request.query_params.get('first_name', None)
-        print(nom)
-        return Patient.objects.filter(first_name=nom)
-
-class SearchPatientFilter(generics.ListAPIView):
-    template_name="healthcare/patient_search.html"
-    serializer_class=PatientModelSeria
-    queryset=Patient.objects.all()
-    context_object_name="patients"
-    filter_backends=[filters.SearchFilter]
-    search_fields=[
-        '^Bureau_CNAM',
-        '^médecin_conseil',
-        '^gouvernorat',
-        '^date_demande']
 #Class Based Views
-class ChartData(APIView,generic.TemplateView):
-    authentication_classes = []
-    permission_classes = []
-    template_name="healthcare/patient_charts.html"
-    def get(self,request,*args, **kwargs):
-        qs = Patient.objects.all()
-        serializer = PatientModelSeria(qs,many=True)
-        return Response(serializer.data)
-
 
 def charts(request):
         qs=Patient.objects.all()
@@ -195,7 +167,7 @@ class ExportDocx(PatientDetailView, APIView):
             h_title.font.color.rgb = RGBColor(0,0,128)
             h2_title.font.color.rgb = RGBColor(0,0,128)
             return h_title,h2_title
-        create_header()
+        
 
         def dateNow():
             run = document.add_paragraph()
@@ -210,7 +182,6 @@ class ExportDocx(PatientDetailView, APIView):
             datee.font.size = Pt(14)
             datee.font.name = 'Times New Roman'
             return datee
-        dateNow()
 
         def emptyparag():
             trashh=document.add_paragraph()
@@ -244,6 +215,14 @@ class ExportDocx(PatientDetailView, APIView):
             r.font.name = 'Times New Roman'
             return r    
                 # add a header
+        create_header()
+        dateNow()
+        emptyparag()
+        expertise()
+        firstParg()
+        SecndParag()
+
+
         document.add_heading(f'{queryset.first_name}\n{queryset.last_name}')
 
         # add a paragraph
@@ -365,38 +344,3 @@ def patient_delete(request,pk):
     patient.delete()
     return redirect("/")
 
-
-
-
-
-
-
-
-"""
-OLD METHOD
-
-def patient_create(request):
-    form=PatientForm()
-    if request.method == "POST":
-        form=PatientForm(request.POST)
-        if form.is_valid():
-            first_name = form.cleaned_data["first_name"]
-            last_name = form.cleaned_data["last_name"]
-            civil = form.cleaned_data["civil"]
-            matricule = form.cleaned_data["matricule"]
-            cin = form.cleaned_data["cin"]
-            age = form.cleaned_data["age"]
-            Patient.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                civil=civil,
-                matricule=matricule,
-                cin=cin,
-                age=age
-            )
-            return redirect("/")
-    context = {
-        "form":form
-    }
-    return render(request, 'healthcare/patient_create.html',context)
-"""

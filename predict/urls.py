@@ -1,9 +1,9 @@
-from . import views
+from .views import predict
 from django.urls import path
 
 app_name ='predict'
 
 urlpatterns = [
-    path('', views.predict , name='predict'),
+    path('', predict , name='predict'),
     
     ]
